@@ -1,0 +1,229 @@
+<style>
+    .drag-state-hover tr {
+        padding-left: 5px;
+        padding-top: 9px;
+        border: 1px solid red;
+    }
+</style>
+
+<section class="content-header">
+    <h1>
+        {{ t._('Edit Layout') }}: {{ model_name }}
+    </h1>
+</section>
+
+<section class="content">
+    {{ form('/builder/update_layout', 'class': 'form-horizontal', 'id': 'change-layout', 'onsubmit': 'preSubmit(); return false;') }}
+    <input type="hidden" name="model_name" value="{{ model_name }}">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-solid">
+                <div class="box-header with-border">
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">{{ t._('Title field') }}:</label>
+                        <div class="col-sm-10">
+                            {{ select('title_field', layout_fields, 'class': 'form-control', 'value': title_field) }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{ partial('builder/partials/edit_layout_list') }}
+    {{ partial('builder/partials/edit_layout_edit') }}
+    {{ partial('builder/partials/edit_layout_detail') }}
+    {{ partial('builder/partials/edit_layout_subpanel') }}
+
+    <div class="row">
+        <div class="col-md-12">
+            <button type="submit" class="btn btn-info pull-right">{{ t._('Save') }}</button>
+        </div>
+    </div>
+    {{ end_form() }}
+</section>
+
+<div class="modal fade" id="create-blockModal" tabindex="-1" role="dialog" aria-labelledby="create-blockModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="{{ t._('Close') }}">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="create-blockModalLabel">{{ t._('Create') }}</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="recipient-name" class="control-label">{{ t._('Block Name') }}:</label>
+                    <input type="text" class="form-control" id="create-blockModalBlockName">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ t._('Close') }}</button>
+                <button type="button" class="btn btn-primary" id="btn-create-blockModalBlock">{{ t._('Create') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(function () {
+        $('#display-list-view').click(function () {
+            $('#container-list-view').toggle('slow');
+        });
+        $('#display-edit-view').click(function () {
+            $('#container-edit-view').toggle('slow');
+        });
+        $('#display-detail-view').click(function () {
+            $('#container-detail-view').toggle('slow');
+        });
+        // drag and drop table
+        dragDrop();
+    });
+
+    function dragDrop() {
+        $tabs = $("#container-edit-view");
+        $("tbody.connectedSortable")
+            .sortable({
+                connectWith: ".connectedSortable",
+                items: "> tr:not(:first)",
+                appendTo: $tabs,
+                helper:"clone",
+                zIndex: 999990,
+                start: function(){ $tabs.addClass("dragging") },
+                stop: function(){ $tabs.removeClass("dragging") }
+            })
+            .disableSelection()
+        ;
+        var $tab_items = $tabs.droppable({
+            accept: ".connectedSortable tr",
+            hoverClass: "drag-state-hover"
+        });
+    }
+    
+    function addNewBlock(type, element, add_type) {
+        $('#btn-create-blockModalBlock').html(type);
+        $('#btn-create-blockModalBlock').attr('onclick', 'createBlock(\'' + element + '\', \'' + add_type + '\')');
+        $('#create-blockModal').modal();
+    }
+
+    function editNewBlock(guid) {
+        var block_name = $('#block-title-' + guid).html();
+        console.log(block_name);
+        $('#create-blockModalBlockName').val(block_name);
+        $('#btn-create-blockModalBlock').html('{{ t._('Edit') }}');
+        $('#btn-create-blockModalBlock').attr('onclick', 'updateBlock(\'' + guid + '\')');
+        $('#create-blockModal').modal();
+    }
+
+    function createBlock(element, type) {
+        var block_name = $('#create-blockModalBlockName').val();
+        if (!block_name) {
+            return;
+        }
+        var guid = bodauTiengViet(block_name);
+        var html = '';
+        if (type == 'EditView') {
+            html += '<table class="table table-bordered table-hover dataTable" id="block-' + guid + '" type="editBlock">' +
+                '<thead><tr>' +
+                '<th colspan="6">' +
+                '<i class="fa fa-edit" onclick="editNewBlock(\''+ guid +'\')"></i>' +
+                '<span id="block-title-' + guid + '">' + block_name + '</span>' +
+                '</th>' +
+                '</tr></thead>' +
+                '<tbody class="connectedSortable">' +
+                '<tr>' +
+                '<th class="header">{{ t._('Field') }}</th>' +
+                '<th class="header">{{ t._('Type') }}</th>' +
+                '<th class="header">{{ t._('Label') }}</th>' +
+                '<th class="header">{{ t._('Options') }}</th>' +
+                '<th class="header">{{ t._('Relate') }}</th>' +
+                '<th class="header">{{ t._('Required') }}</th>' +
+                '</tr></tbody>';
+        } else if (type == 'DetailView') {
+            html += '<table class="table table-bordered table-hover dataTable" id="block-' + guid + '" type="detailBlock">' +
+                '<thead><tr>' +
+                '<th colspan="5">' +
+                '<i class="fa fa-edit" onclick="editNewBlock(\''+ guid +'\')"></i>' +
+                '<span id="block-title-' + guid + '">' + block_name + '</span>' +
+                '</th>' +
+                '</tr></thead>' +
+                '<tbody class="connectedSortable">' +
+                '<tr>' +
+                '<th class="header">{{ t._('Field') }}</th>' +
+                '<th class="header">{{ t._('Type') }}</th>' +
+                '<th class="header">{{ t._('Label') }}</th>' +
+                '<th class="header">{{ t._('Options') }}</th>' +
+                '<th class="header">{{ t._('Relate') }}</th>' +
+                '</tr></tbody>';
+        }
+        $(element + ' .new-block-container').append(html);
+        dragDrop();
+        $('#create-blockModal').modal('hide');
+    }
+
+    function updateBlock(guid) {
+        var block_name = $('#create-blockModalBlockName').val();
+        if (!block_name) {
+            return;
+        }
+        $('#block-title-' + guid).html(block_name);
+        $('#create-blockModal').modal('hide');
+    }
+
+    function addPanel(obj) {
+        var i = $(obj).attr('order');
+        var html = '' +
+            '<tr>' +
+            '<td width="15%"><input type="text" name="subpanels[' + i + '][name]" class="form-control input-sm" placeholder="{{ t._('Subpanel name') }}"></td>' +
+            '<td width="10%"><select name="subpanels[' + i + '][type]" class="form-control input-sm" onchange="loadSupanelOptions(this, \'' + i + '\')">' +
+            '<option></option><option value="one-many">one-many</option><option value="many-many">many-many</option></select></td>' +
+            '<td width="75%"><div id="panelContent' + i + '"></div></td>';
+        $('#addSubpanelContent').append(html);
+        i = parseInt(i) + 1;
+        $(obj).attr('order', i);
+    }
+
+    function loadSupanelOptions(obj, i) {
+        $.get('{{ url() }}/builder/load_subpanel?model_name={{ model_name }}&type=' + $(obj).val() + '&i=' + i, function(data) {
+            $(document.getElementById('panelContent' + i)).html(data);
+        })
+    }
+
+    function loadRelModelConfig(obj, type, i) {
+        var model_name = $(obj).val();
+        $.get('{{ url() }}/builder/load_relmodelfields?model_name=' + model_name + '&type=' + type + '&i=' + i, function (data) {
+            if (type == 'rel')
+                $(document.getElementById('subpanelConfig' + i)).html(data);
+
+            if (type == 'mid')
+                $(document.getElementById('subpanelMidConfig' + i)).html(data);
+        });
+    }
+
+    function preSubmit() {
+        $('table[type=editBlock]').each(function (index, element) {
+            var block_id = $(this).attr('id');
+            var guid = block_id.replace('block-', '');
+            var block_name = $('#block-title-' + guid).html();
+            $('#' + block_id + ' .form-control').each(function (i, e) {
+                var old_name = $(this).attr('name');
+                var name = old_name.replace('edit_fields[' + block_name + ']', '');
+                var new_name = 'edit_fields[' + block_name + ']' + name;
+                $(this).attr('name', new_name);
+            });
+        });
+        $('table[type=detailBlock]').each(function (index, element) {
+            var block_id = $(this).attr('id');
+            var guid = block_id.replace('block-', '');
+            var block_name = $('#block-title-' + guid).html();
+            $('#' + block_id + ' .form-control').each(function (i, e) {
+                var old_name = $(this).attr('name');
+                var name = old_name.replace('detail_fields[' + block_name + ']', '');
+                var new_name = 'detail_fields[' + block_name + ']' + name;
+                $(this).attr('name', new_name);
+            });
+        });
+        $('#change-layout').submit();
+    }
+</script>

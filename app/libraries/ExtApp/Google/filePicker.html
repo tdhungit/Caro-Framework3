@@ -1,0 +1,91 @@
+<script type="text/javascript">
+    // The Browser API key obtained from the Google API Console.
+    var developerKey = ':DEVELOPER_KEY:';
+
+    // The Client ID obtained from the Google API Console. Replace with your own Client ID.
+    var clientId = ":CLIENT_ID:";
+
+    // Scope to use to access user's photos.
+    var scope = ['https://www.googleapis.com/auth/drive'];
+
+    var pickerApiLoaded = false;
+    var oauthToken;
+
+    // Use the API Loader script to load google.picker and gapi.auth.
+    function onApiLoad() {
+        gapi.load('auth', {'callback': onAuthApiLoad});
+        gapi.load('picker', {'callback': onPickerApiLoad});
+    }
+
+    function onAuthApiLoad() {
+        window.gapi.auth.authorize(
+            {
+                'client_id': clientId,
+                'scope': scope,
+                'immediate': false
+            },
+            handleAuthResult);
+    }
+
+    function onPickerApiLoad() {
+        pickerApiLoaded = true;
+        createPicker();
+    }
+
+    function handleAuthResult(authResult) {
+        if (authResult && !authResult.error) {
+            oauthToken = authResult.access_token;
+            createPicker();
+        }
+    }
+
+    // Create and render a Picker object for picking user Photos.
+    function createPicker() {
+        if (pickerApiLoaded && oauthToken) {
+            var view = new google.picker.View(google.picker.ViewId.FOLDERS);
+            var minitypes = "text/html,application/zip,text/plain,application/rtf,application/pdf," +
+                "application/vnd.oasis.opendocument.text,application/epub+zip," +
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document," +
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet," +
+                "application/x-vnd.oasis.opendocument.spreadsheet,text/csv,text/tab-separated-values," +
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation," +
+                "application/vnd.oasis.opendocument.presentation," +
+                "image/png,image/jpeg,image/jpg";
+            view.setMimeTypes(minitypes);
+            var picker = new google.picker.PickerBuilder()
+            //.enableFeature(google.picker.Feature.NAV_HIDDEN)
+                .enableFeature(google.picker.Feature.MULTISELECT_ENABLED)
+                .setAppId(":APP_ID:")
+                .setOAuthToken(oauthToken)
+                .addView(view)
+                .addView(new google.picker.DocsUploadView())
+                .setDeveloperKey(developerKey)
+                .setCallback(pickerCallback)
+                .build();
+            picker.setVisible(true);
+        }
+    }
+
+    // A simple callback implementation.
+    function pickerCallback(data) {
+        var value = '';
+        if (data.action == google.picker.Action.PICKED) {
+            for (var index in data.docs) {
+                value += data.docs[index].url + ',';
+                $('#comment-attachments-:ELEMENT_PREFIX:').append('<div>' + data.docs[index].url +
+                    '<a href="javascript:void(0)" class="uploaded-files" path="' + data.docs[index].url + '">x</a></div>');
+            }
+            value = trim(value, ',');
+            $('#input-attachment-:ELEMENT_PREFIX:').val(value);
+            // remove file upload
+            $('.uploaded-files').click(function () {
+                value = value.replace($(this).attr('path'), '');
+                value = trim(value, ',');
+                $('#input-attachment-:ELEMENT_PREFIX:').val(value);
+                $(this).parent().remove();
+            });
+        }
+    }
+</script>
+<!-- The Google API Loader script. -->
+<script type="text/javascript" src="https://apis.google.com/js/api.js?onload=onApiLoad"></script>

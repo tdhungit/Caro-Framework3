@@ -1,0 +1,29 @@
+<ul class="dropdown-menu choose-attachment-source">
+    <li>
+        <a href="javascript:void(0)" onclick="$(this).siblings('.input-file-addon').click()">
+            <i class="fa fa-cloud-upload"></i>
+            {{ t._('Computer') }}
+        </a>
+        <input type="file"
+               class="input-upload-files input-file-addon"
+               location="files"
+               up-type="file"
+               e-value="#input-attachment-{{ relate_type }}{{ relate_id }}"
+               e-container="#comment-attachments-{{ relate_type }}{{ relate_id }}">
+    </li>
+    <li>
+        <a href="javascript:void(0)"
+           onclick="generate_ajax_get('{{ url('/supports/file_picker/Google?ep=' ~ relate_type ~ relate_id) }}', '#app-hidden-data')">
+            <i class="fa fa-google"></i>
+            {{ t._('Google Drive') }}
+        </a>
+    </li>
+    <li>
+        <div style="display: none;">{{ utils.renderFilePicker('Dropbox', relate_type ~ relate_id) }}</div>
+        <a href="javascript:void(0)"
+           onclick="dropbox_picker()">
+            <i class="fa fa-dropbox"></i>
+            {{ t._('Dropbox') }}
+        </a>
+    </li>
+</ul>

@@ -1,0 +1,4 @@
+{% if attribute(data, name) %}
+    {% set select_data = utils.getDbDropDownList(field.options, '', attribute(data, name)) %}
+    {{ select_data['name'] }}
+{% endif %}

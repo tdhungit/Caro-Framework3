@@ -1,0 +1,33 @@
+<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+    <i class="fa fa-bell-o"></i>
+    <span class="label label-warning">{{ count_notifications }}</span>
+</a>
+<ul class="dropdown-menu">
+    <li class="header">{{ t._('You have') }} {{ count_notifications }} {{ t._('notifications') }}</li>
+    <li>
+        <!-- inner menu: contains the actual data -->
+        <ul class="menu">
+            {% for notify in notifications %}
+                <li>
+                    <a href="{{ url('/users/view_notification/' ~ notify.id) }}">
+                        <div class="pull-left">
+                            <img src="{% if notify.user.avatar %}{{ notify.user.avatar }}{% else %}{{ static_url() }}/themes/default/img/avatar6.png{% endif %}" class="img-circle" alt="{{ notify.username }}" style="width: 40px; height: 40px">
+                        </div>
+                        <h4>
+                            {{ notify.username }} {{ notify.type | lower }} {{ t._(notify.model_name) }}&nbsp;
+                            <small>
+                                <i class="fa fa-warning fa-{{ notify.model_name }} text-yellow"></i>
+                            </small>
+                        </h4>
+                        <p>
+                            <strong>{{ utils.getRelateRecord(notify.model_name, notify.record_id)['name'] }}</strong>
+                            &nbsp;
+                            {{ t._('at') }} {{ notify.created }}
+                        </p>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </li>
+    <li class="footer"><a href="{{ url('/notifications') }}">{{ t._('View all') }}</a></li>
+</ul>

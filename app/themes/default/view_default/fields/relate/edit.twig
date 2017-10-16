@@ -1,0 +1,33 @@
+{% set select_options = [] %}
+{% if dpfields['relate'] is not defined or dpfields['relate'][field.name] is not defined %}
+    {% set select_options = utils.getModelDropDownList(field.model, field_title) %}
+{% endif %}
+
+{% if data is not null %}
+    {{ select(name, select_options,
+        'using': ['id', field_title],
+        'value': field.getVal(data),
+        'class': 'form-control select2 field-' ~ field.name,
+        'useEmpty': true, 'emptyText': '...') }}
+{% else %}
+    {% if field.default %}
+        {% if field.default == 'session' %}
+            {{ select(name, select_options,
+                'using': ['id', field_title],
+                'value': session.get('auth')['id'],
+                'class': 'form-control select2 field-' ~ field.name,
+                'useEmpty': true) }}
+        {% else %}
+            {{ select(name, select_options,
+                'using': ['id', field_title],
+                'value': field.default,
+                'class': 'form-control select2 field-' ~ field.name,
+                'useEmpty': true) }}
+        {% endif %}
+    {% else %}
+        {{ select(name, select_options,
+            'using': ['id', field_title],
+            'class': 'form-control select2 field-' ~ field.name,
+            'useEmpty': true, 'emptyText': '...') }}
+    {% endif %}
+{% endif %}

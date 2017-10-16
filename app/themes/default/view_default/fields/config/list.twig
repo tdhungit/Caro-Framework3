@@ -1,0 +1,5 @@
+{% if field.link %}
+    <a href="{{ url('/' ~ controller ~ '/' ~ links.action_detail ~ '/' ~ row.id) }}">{{ value }}</a>
+{% else %}
+    {{ value }}
+{% endif %}

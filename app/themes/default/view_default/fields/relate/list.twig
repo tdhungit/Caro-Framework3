@@ -1,0 +1,6 @@
+{% if attribute(row, name) %}
+    {% set relate = utils.getRelateRecord(field.model, attribute(row, name)) %}
+    {% set value = relate['name'] %}
+{% else %}
+    {% set value = '' %}
+{% endif %}

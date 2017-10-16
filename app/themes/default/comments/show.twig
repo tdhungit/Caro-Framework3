@@ -1,0 +1,107 @@
+{% if only_comment == '1' %}
+    {% if comments %}
+        {% for comment in comments %}
+            <div class="box-comment">
+                <!-- User image -->
+                <img
+                        class="img-circle img-sm"
+                        src="{% if comment.user.avatar %}{{ comment.user.avatar }}{% else %}{{ static_url() }}/themes/default/img/avatar6.png{% endif %}"
+                        alt="{{ comment.user.username }}">
+
+                <div class="comment-text">
+                    <span class="username">
+                        {{ comment.user.username }}
+                        <span class="text-muted pull-right">{{ current_user.toDisplayDate(comment.created, 'datetime') }}</span>
+                    </span><!-- /.username -->
+                    {{ comment.message }}
+                    <div style="font-size: 12px; font-style: italic">
+                        {% for attach in comment.getAttachments() %}
+                            <div>
+                                <i class="fa fa-link"></i>
+                                <a href="{{ utils.getFileUrl(attach) }}" target="_blank">{{ utils.getFileUrl(attach) }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!-- /.comment-text -->
+            </div>
+            <!-- /.box-comment -->
+        {% endfor %}
+    {% endif %}
+{% else %}
+    <div class="box box-widget">
+        <div class="box-header with-border">
+            <h3 class="box-title">{{ t._('Comments') }}</h3>
+        </div>
+
+        <div class="box-footer box-comments" id="comments-container-{{ relate_type }}{{ relate_id }}">
+            {% if comments %}
+                {% for comment in comments %}
+                    <div class="box-comment">
+                        <!-- User image -->
+                        <img
+                                class="img-circle img-sm"
+                                src="{% if comment.user.avatar %}{{ comment.user.avatar }}{% else %}{{ static_url() }}/themes/default/img/avatar6.png{% endif %}"
+                                alt="{{ comment.user.username }}">
+
+                        <div class="comment-text">
+                            <span class="username">
+                                {{ comment.user.username }}
+                                <span class="text-muted pull-right">{{ current_user.toDisplayDate(comment.created, 'datetime') }}</span>
+                            </span><!-- /.username -->
+                            {{ comment.message }}
+                            <div style="font-size: 12px; font-style: italic">
+                                {% for attach in comment.getAttachments() %}
+                                    <div>
+                                        <i class="fa fa-link"></i>
+                                        <a href="{{ utils.getFileUrl(attach) }}" target="_blank">{{ utils.getFileUrl(attach) }}</a>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- /.comment-text -->
+                    </div>
+                    <!-- /.box-comment -->
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="box-footer">
+            <form action="{{ url('/comments/insert') }}" method="post" id="form-comment-{{ relate_type }}{{ relate_id }}" onsubmit="ajax_submit($(this), 'reload_comments'); return false;">
+                <input type="hidden" name="relate_type" value="{{ relate_type }}">
+                <input type="hidden" name="relate_id" value="{{ relate_id }}">
+                <img
+                        class="img-responsive img-circle img-sm"
+                        src="{% if current_user.avatar %}{{ current_user.avatar }}{% else %}{{ static_url() }}/themes/default/img/user2-160x160.jpg{% endif %}"
+                        alt="{{ current_user.username }}">
+                <div class="input-group dropdown" style="padding-left: 10px;">
+                    <input type="text" name="message" id="input-comment-{{ relate_type }}{{ relate_id }}"
+                           class="form-control input-sm" placeholder="{{ t._('Press enter to post comment') }}">
+                    <input type="hidden" name="attachments" id="input-attachment-{{ relate_type }}{{ relate_id }}">
+
+                    <span class="input-group-addon input-group-file-addon" data-toggle="dropdown">
+                        <i class="fa fa-cloud-upload"></i>
+                    </span>
+                    {{ partial('comments/partials/attachment_source') }}
+
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary btn-flat">{{ t._('Send') }}</button>
+                    </span>
+                </div>
+                <div id="comment-attachments-{{ relate_type }}{{ relate_id }}" style="padding-left: 40px; font-style: italic"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function reload_comments() {
+            $.get('{{ url('/comments/show/' ~ relate_type ~ '/' ~ relate_id ~ '/1') }}', function (data) {
+                $('#comments-container-{{ relate_type }}{{ relate_id }}').html(data);
+                $('#input-comment-{{ relate_type }}{{ relate_id }}').val('');
+                $('#input-attachment-{{ relate_type }}{{ relate_id }}').val('');
+                $('#comment-attachments-{{ relate_type }}{{ relate_id }}').html('');
+                window['emojioneArea_{{ relate_type }}{{ relate_id }}'].data('emojioneArea').setText('');
+            });
+        }
+    </script>
+{% endif %}

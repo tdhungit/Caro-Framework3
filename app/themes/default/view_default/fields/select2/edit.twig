@@ -1,0 +1,16 @@
+{% if data is not null %}
+    {{ select(name, utils.getDropDownList(field.options),
+        'using': ['id', 'name'],
+        'value': field.getVal(data),
+        'useEmpty': true,
+        'emptyText': '...',
+        'placeholder': t._(field.label),
+        'class': 'form-control select2 field-' ~ field.name) }}
+{% else %}
+    {{ select(name, utils.getDropDownList(field.options),
+        'using': ['id', 'name'],
+        'useEmpty': true,
+        'emptyText': '...',
+        'placeholder': t._(field.label),
+        'class': 'form-control select2 field-' ~ field.name) }}
+{% endif %}

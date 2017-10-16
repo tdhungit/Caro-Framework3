@@ -1,0 +1,9 @@
+{% if relate_type is defined and relate_id is defined %}
+    <div class="col-md-12" id="patial-subpanel-comments">
+        <script>
+            $(function () {
+                initCommentEditor('{{ relate_type }}', '{{ relate_id }}', '#patial-subpanel-comments');
+            });
+        </script>
+    </div>
+{% endif %}

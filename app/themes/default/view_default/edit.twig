@@ -1,0 +1,129 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        {{ title }}
+    </h1>
+    <ol class="breadcrumb">
+        <li>
+            <a href="{{ url('/' ~ controller ~ '/' ~ links.action_list) }}" class="btn btn-info btn-xs">
+                <i class="fa fa-reorder"></i> {{ t._('List') }}
+            </a>
+        </li>
+        {% if data is not null %}
+            <li>
+                <a href="{{ url('/' ~ controller ~ '/' ~ links.action_detail ~ '/' ~ data.id) }}" class="btn btn-info btn-xs">
+                    <i class="fa fa-backward"></i> {{ t._('Back') }}
+                </a>
+            </li>
+        {% endif %}
+        {% for m in links.getLinks('edit') %}
+            <li>
+                <a href="{{ url(m.getUrl()) }}" class="btn {{ m.getBtnClass() }} btn-xs">
+                    {% if m.getIcon() %}<i class="{{ m.getIcon() }}"></i>{% endif %}
+                    {{ t._(m.getLabel()) }}
+                </a>
+            </li>
+        {% endfor %}
+    </ol>
+</section>
+
+<section class="content">
+    {{ form('/' ~ controller ~ '/save', 'method': 'post', 'class': 'form-horizontal') }}
+    <input type="hidden" name="model_name" value="{{ model_name }}">
+    <input type="hidden" name="return_url" value="{{ return_url }}">
+    {% if data is not null %}
+        <input type="hidden" name="id" value="{{ data.id }}" />
+    {% endif %}
+
+    <div class="row">
+        {% set dpfields = utils.getDependencyFields(model_name) %}
+        {% for block_name, block_fields in edit_view.fields %}
+            {% set block_class = 'col-md-' ~ 12/edit_view.column %}
+            <div class="{{ block_class }}" id="block-{{ remove_space(block_name) }}">
+                <div class="box box-default">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ t._(block_name) }}</h3>
+                    </div>
+                    <div class="box-body">
+                        {% for name, field in block_fields %}
+                            {% if field.type != 'nodisplay' %}
+                                <div class="form-group form-group-{{ field.name }}">
+                                    <label class="col-sm-3 control-label label-{{ field.name }}">
+                                        {{ field.label }} {% if field.required == 99 %}<span class="required">*</span>{% endif %}
+                                    </label>
+                                    <div class="col-sm-9 value-{{ field.name }}">
+                                        <?php if (file_exists(APP_PATH . '/app/themes/default/view_default/fields/' . $field->type . '/edit.twig')) { ?>
+                                            {{ partial('view_default/fields/' ~ field.type ~ '/edit') }}
+                                        <?php } else { ?>
+                                            {{ partial('view_default/fields/base/edit') }}
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if form_partials is defined and form_partials %}
+        {% for template in form_partials %}
+            <div class="row">
+                {% if template['data'] is defined %}
+                    {{ partial(template['partial'], template['data']) }}
+                {% else %}
+                    {{ partial(template['partial']) }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box-footer text-center">
+                <button type="button" class="btn" name="btn_cancel" onclick="window.location.href='{{ url('/' ~ controller ~ '/' ~ links.action_list) }}'">{{ t._('Cancel') }}</button>
+                <button id="submit-button" type="submit" class="btn btn-info" name="submit" style="margin-right: 5px;">{{ t._('Save') }}</button>
+            </div>
+        </div>
+    </div>
+    {{ end_form() }}
+
+    {% if partials is defined and partials %}
+        {% for template in partials %}
+            <div class="row">
+                {% if template['data'] is defined %}
+                    {{ partial(template['partial'], template['data']) }}
+                {% else %}
+                    {{ partial(template['partial']) }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+</section>
+
+<script>
+    $(function () {
+        {% if dpfields['select'] is defined %}
+            {% for dpfield in dpfields['select'] %}
+                var target_value = '';
+                {% if data and attribute(data, dpfield['target']) %}
+                    target_value = '{{ attribute(data, dpfield['target']) }}';
+                {% endif %}
+                dependencyFieldSelect('.field-{{ dpfield['source'] }}',
+                    '.field-{{ dpfield['target'] }}', {{ dpfield['data'] | json_encode }}, target_value);
+            {% endfor %}
+        {% endif %}
+        {% if dpfields['dbselect'] is defined %}
+            {% for dpfield in dpfields['dbselect'] %}
+                var target_value = '';
+                {% if data and attribute(data, dpfield['target']) %}
+                    target_value = '{{ attribute(data, dpfield['target']) }}';
+                {% endif %}
+                dependencyFieldDbSelect('.field-{{ dpfield['source'] }}',
+                    '.field-{{ dpfield['target'] }}',
+                    '{{ dpfield['target_table'] }}', '', target_value);
+            {% endfor %}
+        {% endif %}
+    });
+</script>

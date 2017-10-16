@@ -1,0 +1,81 @@
+<?php
+    $query_urls = $this->url->currentQuery($this->request->getQuery(), ['page_' . $subpanel_name]);
+    $query_urls = empty($query_urls) ? array('nosearch' => 1) : $query_urls;
+    $current_url = $this->url->currentUrl($query_urls);
+?>
+
+{% if no_data %}
+    <div class="box-content box-table">
+        <div class="box-body">{{ t._('No Data') }}</div>
+    </div>
+{% endif %}
+
+{% if no_def %}
+    <div class="box-content box-table">
+        <div class="box-body">{{ t._('No Def') }}</div>
+    </div>
+{% endif %}
+
+{% if not no_data and not no_def %}
+    <div class="box-content box-table">
+        <table class="table table-bordered table-hover table-striped dataTable">
+            <thead>
+            <tr>
+                {% for name, field in subpanel_def.fields %}
+                    {% set sort_type = '' %}
+                    {% if sort['field'] == field.name %}
+                        {% set sort_type = '_' ~ sort['type'] %}
+                    {% endif %}
+                    <th class="header sorting{{ sort_type }}" onclick="sortSubpanel('{{ field.name }}', '{{ sort_type }}', '{{ current_url }}', '#subpanel-content-{{ subpanel_name }}')">
+                        {{ field.label }}
+                    </th>
+                {% endfor %}
+                {% if subpanel_def.disable_delete == false %}
+                    <th class="header">{{ t._('Action') }}</th>
+                {% endif %}
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for row in subpanel.items %}
+                <tr>
+                    {% for name, field in subpanel_def.fields %}
+                        <td>{{ attribute(row, name) }}</td>
+                    {% endfor %}
+                    {% if subpanel_def.disable_delete == false %}
+                        <td class="td-actions">
+                            <a href="javascript:void(0)" onclick="remove_relate('{{ subpanel_def.rel_model }}', '{{ row.id }}', '{{ subpanel_name }}', '{{ subpanel_def.cur_model }}', '{{ id }}')" class="btn btn-danger btn-xs">
+                                <i class="fa fa-remove"></i>
+                            </a>
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="box-footer">
+        <!-- pagination -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="dataTables_info">
+                    <ul class="pagination" style="margin: 0; float: right">
+                        <li class="paginate_button previous"><a href="javascript:void(0)" onclick="generate_ajax_get('{{ current_url }}', '#subpanel-content-{{ subpanel_name }}')">{{ t._('First') }}</a></li>
+                        <li class="paginate_button previous"><a href="javascript:void(0)" onclick="generate_ajax_get('{{ current_url }}&page_{{ subpanel_name }}={{ subpanel.before }}', '#subpanel-content-{{ subpanel_name }}')">{{ t._('Previous') }}</a></li>
+                        <li class="paginate_button">
+                            <a href="javascript:void(0)" class="paginate-select">
+                                <select style="margin: 0; width: auto; height: 22px" onchange="generate_ajax_get('{{ current_url }}&page_{{ subpanel_name }}=' + $(this).val(), '#subpanel-content-{{ subpanel_name }}')">
+                                    {% for i in 1..subpanel.total_pages %}
+                                        <option{% if subpanel.current == i %} selected{% endif %}>{{ i }}</option>
+                                    {% endfor %}
+                                </select>
+                            </a>
+                        </li>
+                        <li class="paginate_button next"><a href="javascript:void(0)" onclick="generate_ajax_get('{{ current_url }}&page_{{ subpanel_name }}={{ subpanel.next }}', '#subpanel-content-{{ subpanel_name }}')">{{ t._('Next') }}</a></li>
+                        <li class="paginate_button next"><a href="javascript:void(0)" onclick="generate_ajax_get('{{ current_url }}&page_{{ subpanel_name }}={{ subpanel.last }}', '#subpanel-content-{{ subpanel_name }}')">{{ t._('Last') }}</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

@@ -1,0 +1,4 @@
+{% if attribute(data, name) %}
+    {% set relate = utils.getRelateRecord(field.model, attribute(data, name)) %}
+    {{ relate['name'] }}
+{% endif %}

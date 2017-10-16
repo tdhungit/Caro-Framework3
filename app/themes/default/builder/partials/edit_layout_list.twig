@@ -1,0 +1,61 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-header with-border">
+                <i class="fa fa-arrows-v" id="display-list-view" style="cursor: pointer"></i>
+                <h3 class="box-title">{{ t._('List View') }}</h3>
+            </div>
+            <div class="box-body" id="container-list-view" style="display: none">
+                <div class="dataTables_wrapper dt-bootstrap">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered table-hover dataTable">
+                                <tr>
+                                    <th class="header">{{ t._('Field') }}</th>
+                                    <th class="header">{{ t._('Type') }}</th>
+                                    <th class="header">{{ t._('Label') }}</th>
+                                    <th class="header">{{ t._('Options') }}</th>
+                                    <th class="header">{{ t._('Relate') }}</th>
+                                    <th class="header">{{ t._('Search') }}</th>
+                                    <th class="header">{{ t._('Link') }}</th>
+                                </tr>
+                                {% for field, options in layout_list_fields %}
+                                    <tr>
+                                        <td>{{ field }}</td>
+                                        <td>
+                                            {% set value = list_fields.getFieldAttr(field, 'type') %}
+                                            {{ select('list_fields['~ field ~'][type]', types, 'class': 'form-control input-sm', 'useEmpty': false, 'value': value) }}
+                                        </td>
+                                        <td>
+                                            {% set value = list_fields.getFieldAttr(field, 'label') %}
+                                            <input type="text" name="list_fields[{{ field }}][label]" class="form-control input-sm" value="{{ value }}">
+                                        </td>
+                                        <td>
+                                            {% set value = list_fields.getFieldAttr(field, 'options') %}
+                                            {{ select('list_fields['~ field ~'][options]', all_lists, 'class': 'form-control input-sm', 'useEmpty': true, 'value': value) }}
+                                        </td>
+                                        <td>
+                                            {% set value = list_fields.getFieldAttr(field, 'model') %}
+                                            {{ select('list_fields['~ field ~'][model]', all_models, 'class': 'form-control input-sm', 'useEmpty': true, 'value': value) }}
+                                        </td>
+                                        <td>
+                                            {% set value = list_fields.getFieldAttr(field, 'search_operator') %}
+                                            {{ select('list_fields['~ field ~'][search]', search_operations, 'class': 'form-control input-sm', 'value': value) }}
+                                        </td>
+                                        <td>
+                                            {% set value = list_fields.getFieldAttr(field, 'link')  %}
+                                            <select name="list_fields[{{ field }}][link]" class="form-control input-sm">
+                                                <option value="0">False</option>
+                                                <option value="1" {% if value %}selected{% endif %}>True</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,16 @@
+<div class="input-group date">
+    <div class="input-group-addon">
+        <i class="fa fa-calendar"></i>
+    </div>
+
+    {% set value = '' %}
+    {% if data %}
+        {% set value = field.format(data, current_user) %}
+    {% endif %}
+
+    <input type="text"
+           name="{{ field.name }}"
+           value="{{ value }}"
+           class="form-control pull-right datetimepicker field-{{ field.name }}"
+           data-date-format="{{ current_user.datetimeFormat(true) }}">
+</div>

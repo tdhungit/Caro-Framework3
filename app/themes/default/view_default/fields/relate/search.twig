@@ -1,0 +1,6 @@
+{% set options = utils.getModelDropDownList(field.model, field_title) %}
+{{ select(name, options,
+    'using': ['id', field_title],
+    'value': search_value,
+    'class': 'form-control search-' ~ field.name,
+    'useEmpty': true) }}

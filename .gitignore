@@ -1,0 +1,13 @@
+.idea
+.DS_Store
+*.log
+app/cache/volt/*.php
+app/cache/groups/*.php
+app/cache/permissions/*.php
+app/config/layouts/main_menu.conf.php
+logs/*.log
+uploads/*
+!uploads/index.html
+public/.DS_Store
+public/uploads/*
+!public/uploads/index.html

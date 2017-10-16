@@ -1,0 +1,21 @@
+{% set select_options = [] %}
+{% if dpfields['dbselect'] is not defined or dpfields['dbselect'][field.name] is not defined %}
+    {% set select_options = utils.getDbDropDownList(field.options) %}
+{% endif %}
+
+{% if data is not null %}
+    {{ select(name, select_options,
+        'using': ['id', 'name'],
+        'value': field.getVal(data),
+        'useEmpty': true,
+        'emptyText': '...',
+        'placeholder': t._(field.label),
+        'class': 'form-control select2 field-' ~ field.name) }}
+{% else %}
+    {{ select(name, select_options,
+        'using': ['id', 'name'],
+        'useEmpty': true,
+        'emptyText': '...',
+        'placeholder': t._(field.label),
+        'class': 'form-control select2 field-' ~ field.name) }}
+{% endif %}

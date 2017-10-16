@@ -1,0 +1,17 @@
+<div id="files-upload-container-{{ name }}" style="padding-bottom: 5px;">
+    {% if data is not null and attribute(data, name) %}
+        <img src="{{ utils.getFileUrl(attribute(data, name)) }}" class="img-thumbnail" style="height: 200px;">
+    {% endif %}
+</div>
+<span class="btn btn-default btn-file">
+    {{ t._('Browse') }}
+    <input type="hidden" name="{{ name }}"
+           id="file-upload-{{ name }}"
+           class="field-{{ name }}"
+           value="{% if data is not null %}{{ utils.getFileUrl(attribute(data, name)) }}{% endif %}">
+    <input type="file" location="images"
+           class="input-upload-file"
+           up-type="image"
+           e-value="#file-upload-{{ name }}"
+           e-container="#files-upload-container-{{ name }}">
+</span>

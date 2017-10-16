@@ -1,0 +1,12 @@
+{% if options['type'] == 'select' %}
+    {{ select('preference' ~ field, utils.app_list_strings[options['options']], 'class': 'form-control', 'value': value) }}
+{% elseif options['type'] == 'textarea' %}
+    <textarea name="preference{{ field }}" id="{{ field_id }}" class="form-control">{{ value }}</textarea>
+{% else %}
+    <input type="{{ options['type'] }}"
+           name="preference{{ field }}"
+           value="{{ value }}"
+           class="form-control"
+           id="{{ field_id }}"
+           placeholder="{{ t._(options['label']) }}">
+{% endif %}

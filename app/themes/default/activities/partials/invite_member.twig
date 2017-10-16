@@ -1,0 +1,62 @@
+<input type="hidden" name="members[model_name]" value="ActivitiesMembers">
+<div class="col-md-12">
+    <div class="box box-default" id="invite-member-content">
+        <div class="box-header with-border">
+            <h3 class="box-title">
+                <i class="fa fa-user-plus"></i> {{ t._('Invite Members') }}
+            </h3>
+        </div>
+        <div class="box-body">
+            <div class="form-group">
+                <label class="col-sm-2 control-label">
+                    {{ t._('Relate Member') }}
+                </label>
+                <div class="col-sm-10">
+                    <select2 v-model="invite_member" v-on:change="getInvite()"></select2>
+                    <script type="text/x-template" id="select2-template">
+                        <select name="invite_members"
+                                id="invite-members"
+                                class="form-control"
+                                data-placeholder="{{ t._('Email') }}"></select>
+                    </script>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-10">
+                    <table class="table table-bordered table-responsive">
+                        <head>
+                            <th>{{ t._('Email') }}</th>
+                            <th>{{ t._('Type') }}</th>
+                            <th>{{ t._('Name') }}</th>
+                        </head>
+                        <tbody>
+                        {% if data %}
+                            {% for member in data.members %}
+                                <tr>
+                                    <td>
+                                        {{ member.email }}
+                                        <input type="hidden" name="members[fields][edit{{ member.id }}][id]" value="{{ member.id }}">
+                                        <input type="hidden" name="members[fields][edit{{ member.id }}][email]" value="{{ member.email }}">
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        <tr v-for="(item, index) in invite_members">
+                            <td>
+                                {{ '{{ item.email }}' }}
+                                <input type="hidden" v-bind:name="'members[fields][' + index + '][email]'" v-bind:value="item.email">
+                            </td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,115 @@
+<section class="content-header">
+    <h1>
+        {{ t._('Permissions for') }} {{ role.name }}
+    </h1>
+    <ol class="breadcrumb">
+        <li>
+            <a href="{{ url('/users/roles') }}" class="btn btn-info btn-xs">
+                <i class="fa fa-reorder"></i> {{ t._('List Roles') }}
+            </a>
+        </li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <form action="{{ url('/users/save_permissions') }}" method="post">
+                <input type="hidden" name="role_id" value="{{ role_id }}">
+                <div class="box box-default">
+                    <div class="box-body">
+                        <div class="dataTables_wrapper form-inline dt-bootstrap">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <table class="table table-bordered dataTable">
+                                        <thead>
+                                        <tr role="row">
+                                            <th class="header">{{ t._('Controller Name') }}</th>
+                                            <th class="header">{{ t._('Access') }}</th>
+                                            {% for action_group in access_actions %}
+                                                <th class="header">{{ t._(action_group) }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for controller in controllers %}
+                                            {% if controller != 'index' %}
+                                                <tr>
+                                                    <td>{{ controller }}</td>
+                                                    <td>
+                                                        {% set value = '' %}
+                                                        {% if permissions[controller]['controller'] is defined %}
+                                                            {% set value = permissions[controller]['controller'] %}
+                                                        {% endif %}
+                                                        {{ select('permissions[' ~ controller ~ '][controller]', controller_accesses, 'value': value, 'class': 'form-control aclaccess' ~ value) }}
+                                                    </td>
+                                                    {% for action_group in access_actions %}
+                                                        <td>
+                                                            {% set value = '' %}
+                                                            {% if permissions[controller][action_group ~ 'Action'] is defined %}
+                                                                {% set value = permissions[controller][action_group ~ 'Action'] %}
+                                                            {% endif %}
+                                                            {{ select('permissions[' ~ controller ~ '][' ~ action_group ~ 'Action]', controller_accesses, 'value': value, 'class': 'form-control aclaccess' ~ value) }}
+                                                        </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box box-default">
+                    <div class="box-body">
+                        <div class="dataTables_wrapper form-inline dt-bootstrap">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <table class="table table-bordered dataTable">
+                                        <thead>
+                                        <tr role="row">
+                                            <th class="header">{{ t._('Model Name') }}</th>
+                                            {% for type, label in access_types %}
+                                            <th class="header">{{ t._(label) }}</th>
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for model in models %}
+                                            <tr>
+                                                <td>{{ model }}</td>
+                                                {% for type, label in access_types %}
+                                                <td>
+                                                    {% set value = '' %}
+                                                    {% if permissions[model][type] is defined %}
+                                                        {% set value = permissions[model][type] %}
+                                                    {% endif %}
+                                                    {{ select('permissions[' ~ model ~ '][' ~ type ~ ']', accesses, 'value': value, 'class': 'form-control aclaccess' ~ value) }}
+                                                </td>
+                                                {% endfor %}
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <button type="submit" name="submit" class="btn btn-info">{{ t._('Save') }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>

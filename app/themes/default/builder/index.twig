@@ -1,0 +1,57 @@
+<section class="content-header">
+    <h1>
+        {{ t._('List Models') }}
+    </h1>
+    <ol class="breadcrumb">
+        <li>
+            <a href="{{ url('/builder/create_model') }}" class="btn btn-info btn-xs">
+                <i class="fa fa-plus"></i> {{ t._('Add new Model') }}
+            </a>
+        </li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-default">
+                <div class="box-body">
+                    <div class="dataTables_wrapper form-inline dt-bootstrap">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <table class="table table-bordered table-hover table-striped dataTable">
+                                    <thead>
+                                    <tr role="row">
+                                        <th class="header">{{ t._('Model Name') }}</th>
+                                        <th class="header">{{ t._('Action') }}</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for model in models %}
+                                        <tr>
+                                            <td>{{ model }}</td>
+                                            <td>
+                                                <a href="{{ url('/builder/edit_layout/' ~ model) }}" class="btn btn-info btn-xs" title="{{ t._('Edit layouts') }}">
+                                                    <i class="fa fa-bars"></i>
+                                                </a>
+
+                                                <a href="{{ url('/builder/rebuild_model/' ~ model) }}" class="btn btn-info btn-xs" title="{{ t._('Rebuild') }}">
+                                                    <i class="fa fa-database"></i>
+                                                </a>
+
+                                                <a href="javascript:void(0)" onclick="generate_ajax_get_modal('{{ url('/settings/quick_create_menu?name=' ~ model ~ '&action=index&icon=fa fa-bars') }}')" class="btn btn-info btn-xs" title="{{ t._('Rebuild') }}">
+                                                    <i class="fa fa-sitemap"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

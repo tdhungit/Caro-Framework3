@@ -1,0 +1,66 @@
+.aclaccess1 {
+    border-color: red;
+}
+
+.box-content {
+    overflow-y: auto;
+}
+
+.td-actions {
+    min-width: 115px;
+}
+
+table.dataTable thead > tr > th.list-checkbox {
+    padding-right: 10px;
+}
+
+.paginate-select {
+    padding: 5px 12px !important;
+}
+
+#notifications-menu > ul.dropdown-menu {
+    width: 350px;
+}
+
+#notifications-menu > ul.dropdown-menu > li > ul.menu {
+    max-height: 300px;
+}
+
+.input-group-file-addon {
+    position: relative;
+    border-left: 0;
+    cursor: pointer;
+}
+
+.input-group-file-addon:hover {
+    opacity: 0.8;
+}
+
+.input-file-addon {
+    display: none !important;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 34px;
+}
+
+.choose-attachment-source {
+    right: 0;
+    left: auto;
+}
+
+.uploaded-image-container {
+    display: inline-block;
+}
+
+.uploaded-file, .uploaded-files {
+    display: inline-block;
+    padding-left: 7px;
+    font-weight: 700;
+}
+
+.iframe-in-modal {
+    width: 100%;
+    height: 600px;
+    border: 0 !important;
+}

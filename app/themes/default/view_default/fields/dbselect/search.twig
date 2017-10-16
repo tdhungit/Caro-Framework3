@@ -1,0 +1,7 @@
+{{ select(name, utils.getDbDropDownList(field.options),
+    'using': ['id', 'name'],
+    'value': search_value,
+    'useEmpty': true,
+    'emptyText': field.label,
+    'emptyValue': '',
+    'class': 'form-control select2 search-' ~ field.name) }}

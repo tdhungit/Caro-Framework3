@@ -1,0 +1,93 @@
+<div class="modal-header">
+    <h4 class="modal-title">{{ title }}</h4>
+</div>
+
+<div class="modal-body">
+    <div class="box-content box-table">
+        {{ form(current_uri, 'method' : 'get', 'class': 'form-list-search', 'onsubmit': 'popup_search($(this)); return false;') }}
+        <table class="table table-bordered table-hover table-striped dataTable">
+            <thead>
+            <tr>
+                {% for name, field in list_view.fields %}
+                    {% if field.type != 'nodisplay' and (field.type == 'select' or field.type == 'text') %}
+                        {% set sort_type = '' %}
+                        {% if sorts[field.name] is defined %}
+                            {% set sort_type = '_' ~ sorts[field.name] %}
+                        {% endif %}
+                        <th class="header sorting{{ sort_type }}" onclick="pagination_popup(sortingNow('{{ current_url }}', '{{ field.name }}', '{{ sort_type }}', true))">{{ field.label }}</th>
+                    {% endif %}
+                {% endfor %}
+                <th class="header" width="1%"></th>
+            </tr>
+            <!-- search -->
+            <tr>
+                {% for name, field in list_view.fields %}
+                    {% if field.type != 'nodisplay' and (field.type == 'select' or field.type == 'text') %}
+                        <td>
+                            {% if field.search is defined and field.search %}
+                                {% if search[name] is defined %}{% set search_value = search[name] %}{% else %}{% set search_value = '' %}{% endif %}
+                                {% if field.type == 'select' %}
+                                    {{ select(name, utils.getDropDownList(field.options), 'using': ['id', 'name'], 'value': search_value, 'useEmpty': true, 'emptyText': field.label, 'emptyValue': '', 'class': 'form-control') }}
+                                {% else %}
+                                    <input type="text" name="{{ name }}" placeholder="{{ field.label }}" value="{{ search_value }}" class="form-control" />
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                {% endfor %}
+                <td><input type="submit" name="submit" value="{{ t._('Search') }}" class="btn btn-info"></td>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% for row in data %}
+                <tr>
+                    {% for name, field in list_view.fields %}
+                        {% if field.type != 'nodisplay' and (field.type == 'select' or field.type == 'text') %}
+                            <td>
+                                <a href="javascript:save_relate('{{ rel_model }}', '{{ row.id }}', '{{ subpanel_name }}', '{{ current_model }}', '{{ current_id }}')">
+                                    <?php if (file_exists(APP_PATH . '/app/themes/default/view_default/fields/' . $field->type . '/popup.twig')) { ?>
+                                        {{ partial('view_default/fields/' ~ field.type ~ '/popup') }}
+                                    <?php } else { ?>
+                                        {{ partial('view_default/fields/base/popup') }}
+                                    <?php } ?>
+                                </a>
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                    <td></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {{ end_form() }}
+    </div>
+
+    <!-- pagination -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="dataTables_info">
+                <ul class="pagination" style="margin: 0">
+                    <li class="paginate_button previous"><a href="javascript:;" onclick="pagination_popup('{{ current_url }}&page={{ page.before }}')">First</a></li>
+                    <li class="paginate_button previous"><a href="javascript:;" onclick="pagination_popup('{{ current_url }}&page={{ page.before }}')">Previous</a></li>
+                    <li class="paginate_button">
+                        <a href="javascript:;" style="padding: 5px 10px;">
+                            <select style="margin: 0; width: auto;" onchange="pagination_popup('{{ current_url }}&page=' + $(this).val())">
+                                {% for i in 1..page.total_pages %}
+                                    <option{% if page.current == i %} selected{% endif %}>{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                        </a>
+                    </li>
+                    <li class="paginate_button next"><a href="javascript:;" onclick="pagination_popup('{{ current_url }}&page={{ page.next }}')">Next</a></li>
+                    <li class="paginate_button next"><a href="javascript:;" onclick="pagination_popup('{{ current_url }}&page={{ page.last }}')">Last</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">{{ t._('Close') }}</button>
+</div>

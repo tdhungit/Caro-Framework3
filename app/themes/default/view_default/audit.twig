@@ -1,0 +1,54 @@
+<div class="modal-header">
+    <h4 class="modal-title">{{ t._('Change History') }}</h4>
+</div>
+
+<div style="background: #ecf0f5">
+    <div class="modal-body">
+        <div class="row">
+            <div class="col-md-12">
+                <ul class="timeline">
+                    {% for audit in audits %}
+                        <li class="time-label">
+                            <span class="bg-red">{{ current_user.toDisplayDate(audit.created, 'datetime') }}</span>
+                        </li>
+                        {% if audit.type == 'Create' %}
+                            <li>
+                                <i class="fa fa-plus bg-blue"></i>
+                                <div class="timeline-item">
+                                    <span class="time"><i class="fa fa-user"></i> {{ t._('by') }} {{ audit.username }}</span>
+                                    <h3 class="timeline-header no-border">
+                                        {{ t._(audit.type) }} {{ t._('a new') }} <strong>{{ t._(audit.model_name) }}</strong>
+                                    </h3>
+                                </div>
+                            </li>
+                        {% else %}
+                            {% for detail in audit.details %}
+                                <li>
+                                    <i class="fa fa-edit bg-blue"></i>
+                                    <div class="timeline-item">
+                                        <span class="time"><i class="fa fa-user"></i> {{ t._('by') }} {{ audit.username }}</span>
+                                        <h3 class="timeline-header no-border">
+                                            {% set label_raw = detail.field_name %}
+                                            {% if fields[label_raw] is defined %}
+                                                {% set label_raw = fields[label_raw].label %}
+                                            {% endif %}
+                                            {{ t._(audit.type) }} <strong>{{ t._(label_raw) }}</strong> {{ t._('from') }} <strong>{{ detail.old_value }}</strong> {{ t._('to') }} <strong>{{ detail.new_value }}</strong>
+                                        </h3>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                    <!-- END timeline item -->
+                    <li>
+                        <i class="fa fa-clock-o bg-gray"></i>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-default" data-dismiss="modal">{{ t._('Close') }}</button>
+</div>

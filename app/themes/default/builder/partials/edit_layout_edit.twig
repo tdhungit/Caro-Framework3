@@ -1,0 +1,83 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-header with-border">
+                <i class="fa fa-arrows-v" id="display-edit-view" style="cursor: pointer"></i>
+                <h3 class="box-title">{{ t._('Edit View') }}</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" onclick="addNewBlock('{{ t._('Create') }}', '#container-edit-view', 'EditView')">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="box-body" id="container-edit-view" style="display: none;">
+                <div class="dataTables_wrapper dt-bootstrap">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">{{ t._('Column') }}</label>
+                                <div class="col-sm-10">
+                                    {{ select('edit_column', ['1':'1', '2':'2', '3':'3'], 'class': 'form-control', 'value': edit_fields.column) }}
+                                </div>
+                            </div>
+                            {% set i = 0 %}
+                            {% for block_name, block_fields in layout_edit_fields %}
+                                {% set i = i+1 %}
+                                <table class="table table-bordered table-hover dataTable" id="block-main-edit-view{{ i }}" type="editBlock">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="6">
+                                            <i class="fa fa-edit" onclick="editNewBlock('main-edit-view{{ i }}')"></i>
+                                            <span id="block-title-main-edit-view{{ i }}">{{ t._(block_name) }}</span>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="connectedSortable">
+                                    <tr>
+                                        <th class="header">{{ t._('Field') }}</th>
+                                        <th class="header">{{ t._('Type') }}</th>
+                                        <th class="header">{{ t._('Label') }}</th>
+                                        <th class="header">{{ t._('Options') }}</th>
+                                        <th class="header">{{ t._('Relate') }}</th>
+                                        <th class="header">{{ t._('Required') }}</th>
+                                    </tr>
+                                    {% for field, options in block_fields %}
+                                        <tr>
+                                            <td>{{ field }}</td>
+                                            <td>
+                                                {% set value = edit_fields.getFieldAttr(field, 'type', block_name) %}
+                                                {{ select('['~ field ~'][type]', types, 'class': 'form-control input-sm', 'useEmpty': false, 'value': value) }}
+                                            </td>
+                                            <td>
+                                                {% set value = edit_fields.getFieldAttr(field, 'label', block_name) %}
+                                                <input type="text" name="[{{ field }}][label]" class="form-control input-sm" value="{{ value }}">
+                                            </td>
+                                            <td>
+                                                {% set value = edit_fields.getFieldAttr(field, 'options', block_name) %}
+                                                {{ select('['~ field ~'][options]', all_lists, 'class': 'form-control input-sm', 'useEmpty': true, 'value': value) }}
+                                            </td>
+                                            <td>
+                                                {% set value = edit_fields.getFieldAttr(field, 'model', block_name) %}
+                                                {{ select('['~ field ~'][model]', all_models, 'class': 'form-control input-sm', 'useEmpty': true, 'value': value) }}
+                                            </td>
+                                            <td>
+                                                {% set value = edit_fields.getFieldAttr(field, 'required', block_name)  %}
+                                                <select name="[{{ field }}][required]" class="form-control input-sm">
+                                                    <option value="0">{{ t._('No') }}</option>
+                                                    <option value="1" {% if value == 1 %}selected{% endif %}>{{ t._('Quick Create') }}</option>
+                                                    <option value="99" {% if value == 99 %}selected{% endif %}>{{ t._('All') }}</option>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% endfor %}
+                            <div class="new-block-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

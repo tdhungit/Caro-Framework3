@@ -1,0 +1,5 @@
+{% if attribute(row, name) %}
+    {% set value = utils.getDropDownList(field.options, attribute(row, name)) %}
+{% else %}
+    {% set value = '' %}
+{% endif %}

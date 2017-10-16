@@ -1,0 +1,121 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-header with-border">
+                <h3 class="box-title">
+                    {{ t._('Add Panel') }}
+                    <i class="fa fa-fw fa-plus" style="cursor: pointer" onclick="addPanel(this);" order="0"></i>
+                </h3>
+            </div>
+            <div class="box-body">
+                <div class="dataTables_wrapper dt-bootstrap">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <table class="table table-bordered dataTable" id="addSubpanelContent">
+                                {% for i, subpanel in detail_fields.subpanels %}
+                                    <tr>
+                                        <td width="15%" align="center">
+                                            <input type="text" name="subpanels[{{ i }}][name]" class="form-control input-sm" placeholder="{{ t._('Subpanel name') }}" value="{{ i }}">
+                                            (<a href="javascript:void(0)" onclick="loadSupanelOptions(this, '{{ i }}')">edit</a>)
+                                        </td>
+                                        <td width="10%">
+                                            <select name="subpanels[{{ i }}][type]" class="form-control input-sm" onchange="loadSupanelOptions(this, '{{ i }}')">
+                                                <option></option>
+                                                <option value="one-many"{% if subpanel.type == 'one-many' %} selected{% endif %}>one-many</option>
+                                                <option value="many-many"{% if subpanel.type == 'many-many' %} selected{% endif %}>many-many</option>
+                                            </select>
+                                        </td>
+                                        <td width="75%">
+                                            <div id="panelContent{{ i }}">
+                                                <table class="table table-bordered dataTable">
+                                                    <tr>
+                                                        <td width="20%">{{ t._('Current model') }}</td>
+                                                        <td>
+                                                            {{ subpanel.cur_model }}
+                                                            <input type="hidden" name="subpanels[{{ i }}][current_model]" value="{{ subpanel.cur_model }}">
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>{{ t._('Primary field') }}</td>
+                                                        <td>
+                                                            {{ subpanel.cur_field }}
+                                                            <input type="hidden" name="subpanels[{{ i }}][current_field]" value="{{ subpanel.cur_field }}">
+                                                        </td>
+                                                    </tr>
+
+                                                    {% if subpanel.type == 'many-many' %}
+                                                        <tr>
+                                                            <td>{{ t._('Mid model') }}</td>
+                                                            <td>
+                                                                {{ subpanel.mid_model }}
+                                                                <input type="hidden" name="subpanels[{{ i }}][mid_model]" value="{{ subpanel.mid_model }}">
+                                                            </td>
+                                                        </tr>
+
+                                                        <tbody>
+                                                        <tr>
+                                                            <td>{{ t._('Mid field 01') }}</td>
+                                                            <td>
+                                                                {{ subpanel.mid_field1 }}
+                                                                <input type="hidden" name="subpanels[{{ i }}][mid_field1]" value="{{ subpanel.mid_field1 }}">
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>{{ t._('Mid field 02') }}</td>
+                                                            <td>
+                                                                {{ subpanel.mid_field2 }}
+                                                                <input type="hidden" name="subpanels[{{ i }}][mid_field2]" value="{{ subpanel.mid_field2 }}">
+                                                            </td>
+                                                        </tr>
+                                                        </tbody>
+                                                    {% endif %}
+
+                                                    <tr>
+                                                        <td>{{ t._('Related model') }}</td>
+                                                        <td>
+                                                            {{ subpanel.rel_model }}
+                                                            <input type="hidden" name="subpanels[{{ i }}][rel_model]" value="{{ subpanel.rel_model }}">
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>{{ t._('Related field') }}</td>
+                                                        <td>
+                                                            {{ subpanel.rel_field }}
+                                                            <input type="hidden" name="subpanels[{{ i }}][rel_field]" value="{{ subpanel.rel_field }}">
+                                                        </td>
+                                                    </tr>
+                                                    <tfoot>
+                                                    <tr>
+                                                        <td>{{ t._('Show fields') }}</td>
+                                                        <td>
+                                                            <table class="table table-bordered dataTable">
+                                                                {% for field, options in subpanel.fields %}
+                                                                    <tr>
+                                                                        <td>{{ field }}</td>
+                                                                        <td>
+                                                                            {{ options.type }}
+                                                                            <input type="hidden" name="subpanels[{{ i }}][list][{{ field }}][type]" value="{{ options.type }}">
+                                                                        </td>
+                                                                        <td>
+                                                                            {{ options.label }}
+                                                                            <input type="hidden" name="subpanels[{{ i }}][list][{{ field }}][label]" value="{{ options.label }}">
+                                                                        </td>
+                                                                    </tr>
+                                                                {% endfor %}
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                    </tfoot>
+                                                </table>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

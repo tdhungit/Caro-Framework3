@@ -1,0 +1,75 @@
+<div class="row">
+    <div class="col-md-12">
+        <div class="box box-solid">
+            <div class="box-header with-border">
+                <i class="fa fa-arrows-v" id="display-detail-view" style="cursor: pointer"></i>
+                <h3 class="box-title">{{ t._('Detail View') }}</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" onclick="addNewBlock('{{ t._('Create') }}', '#container-detail-view', 'DetailView')">
+                        <i class="fa fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="box-body" id="container-detail-view" style="display: none;">
+                <div class="dataTables_wrapper dt-bootstrap">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">{{ t._('Column') }}</label>
+                                <div class="col-sm-10">
+                                    {{ select('detail_column', ['1':'1', '2':'2', '3':'3'], 'class': 'form-control', 'value': detail_fields.column) }}
+                                </div>
+                            </div>
+                            {% set i = 0 %}
+                            {% for block_name, block_fields in layout_detail_fields %}
+                                {% set i = i+1 %}
+                                <table class="table table-bordered table-hover dataTable" id="block-main-detail-view{{ i }}" type="detailBlock">
+                                    <thead>
+                                    <tr>
+                                        <th colspan="5">
+                                            <i class="fa fa-edit" onclick="editNewBlock('main-detail-view{{ i }}')"></i>
+                                            <span id="block-title-main-detail-view{{ i }}">{{ t._(block_name) }}</span>
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                    <tbody class="connectedSortable">
+                                    <tr>
+                                        <th class="header">{{ t._('Field') }}</th>
+                                        <th class="header">{{ t._('Type') }}</th>
+                                        <th class="header">{{ t._('Label') }}</th>
+                                        <th class="header">{{ t._('Options') }}</th>
+                                        <th class="header">{{ t._('Relate') }}</th>
+                                    </tr>
+
+                                    {% for field, options in block_fields %}
+                                        <tr>
+                                            <td>{{ field }}</td>
+                                            <td>
+                                                {% set value = detail_fields.getFieldAttr(field, 'type', block_name) %}
+                                                {{ select('['~ field ~'][type]', types, 'class': 'form-control input-sm', 'useEmpty': false, 'value': value) }}
+                                            </td>
+                                            <td>
+                                                {% set value = detail_fields.getFieldAttr(field, 'label', block_name) %}
+                                                <input type="text" name="[{{ field }}][label]" class="form-control input-sm" value="{{ value }}">
+                                            </td>
+                                            <td>
+                                                {% set value = detail_fields.getFieldAttr(field, 'options', block_name) %}
+                                                {{ select('['~ field ~'][options]', all_lists, 'class': 'form-control input-sm', 'useEmpty': true, 'value': value) }}
+                                            </td>
+                                            <td>
+                                                {% set value = detail_fields.getFieldAttr(field, 'model', block_name) %}
+                                                {{ select('['~ field ~'][model]', all_models, 'class': 'form-control input-sm', 'useEmpty': true, 'value': value) }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% endfor %}
+                            <div class="new-block-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

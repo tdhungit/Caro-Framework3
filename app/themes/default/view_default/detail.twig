@@ -1,0 +1,125 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        {{ title }}
+    </h1>
+    <ol class="breadcrumb">
+        <li>
+            <a href="javascript:void(0)" class="btn btn-info btn-xs" onclick="generate_ajax_get_modal('{{ url('/' ~ controller ~ '/audit/' ~ data.id ~ '/' ~ model_name) }}')">
+                <i class="fa fa-hourglass-2"></i> {{ t._('Change History') }}
+            </a>
+        </li>
+        <li>
+            <a href="{{ url('/' ~ controller ~ '/' ~ links.action_list) }}" class="btn btn-info btn-xs">
+                <i class="fa fa-reorder"></i> {{ t._('List') }}
+            </a>
+        </li>
+        <li>
+            <a href="{{ url('/' ~ controller ~ '/' ~ links.action_edit) ~ '/' ~ data.id }}" class="btn btn-info btn-xs">
+                <i class="fa fa-edit"></i> {{ t._('Edit') }}
+            </a>
+        </li>
+        {% for m in links.getLinks('view') %}
+            <li>
+                <a href="{{ url(m.getUrl()) }}" class="btn {{ m.getBtnClass() }} btn-xs">
+                    {% if m.getIcon() %}<i class="{{ m.getIcon() }}"></i>{% endif %}
+                    {{ t._(m.getLabel()) }}
+                </a>
+            </li>
+        {% endfor %}
+    </ol>
+</section>
+
+<section class="content">
+    <div class="row">
+        {% set block_class = 'col-md-' ~ 12/detail_view.column %}
+        {% for block_name, block_fields in detail_view.fields %}
+            <div class="{{ block_class }}">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ t._(block_name) }}</h3>
+                    </div>
+                    <div class="box-content">
+                        <table class="table table-striped">
+                            <tbody>
+                            {% for name, field in block_fields %}
+                                {% if field.type != 'nodisplay' %}
+                                    <tr>
+                                        <td width="33%"><b>{{ field.label }}</b></td>
+                                        <td>
+                                            <?php if (file_exists(APP_PATH . '/app/themes/default/view_default/fields/' . $field->type . '/detail.twig')) { ?>
+                                            {{ partial('view_default/fields/' ~ field.type ~ '/detail') }}
+                                            <?php } else { ?>
+                                            {{ partial('view_default/fields/base/detail') }}
+                                            <?php } ?>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if partials is defined and partials %}
+        {% for template in partials %}
+            <div class="row">
+                {% if template['data'] is defined %}
+                    {{ partial(template['partial'], template['data']) }}
+                {% else %}
+                    {{ partial(template['partial']) }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if detail_view.subpanels %}
+        {% for subpanel_name, subpanel_def in detail_view.subpanels %}
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box">
+                        <div class="box-header">
+                            <h3 class="box-title">
+                                <a href="javascript:void(0)" id="subpanel-status-{{ subpanel_name }}"
+                                   onclick="loadSubpanel('{{ url('/' ~ controller ~ '/subpanel/' ~ model_name ~ '/' ~ data.id ~ '/' ~ subpanel_name) }}', '#subpanel-content-{{ subpanel_name }}', '#subpanel-status-{{ subpanel_name }}')"
+                                   status="{% if not current_user.getPreference('nonauto_open_subpanels') %}closed{% endif %}">
+                                    <i class="fa fa-chevron-down"></i>
+                                </a>
+                                {{ t._(subpanel_def.rel_model) }}
+                            </h3>
+
+                            <div class="box-tools">
+                                <a id="reload-subpanel-{{ subpanel_name }}" href="{{ url('/' ~ controller ~ '/subpanel/' ~ model_name ~ '/' ~ data.id ~ '/' ~ subpanel_name) }}"
+                                   class="btn btn-box-right ajax-load" element-body="#subpanel-content-{{ subpanel_name }}">
+                                    <i class="fa fa-repeat"></i>
+                                </a>
+                                {% if subpanel_def.buttons %}
+                                    <a href="javascript:void(0)" class="btn btn-box-right"
+                                       onclick="create_record_and_save_relate('{{ controller }}', '{{ subpanel_def.rel_model }}', '{{ subpanel_name }}', '{{ subpanel_def.type }}', '{{ model_name }}', '{{ data.id }}')">
+                                        <i class="fa fa-plus"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" class="btn btn-box-right"
+                                       onclick="list_relate('{{ subpanel_def.rel_model }}', '{{ subpanel_def.cur_model }}', '{{ data.id }}', '{{ subpanel_name }}')">
+                                        <i class="fa fa-external-link-square"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div id="subpanel-content-{{ subpanel_name }}">
+                            {% if not current_user.getPreference('nonauto_open_subpanels') %}
+                                <script>
+                                    $(function () {
+                                        loadSubpanel('{{ url('/' ~ controller ~ '/subpanel/' ~ model_name ~ '/' ~ data.id ~ '/' ~ subpanel_name) }}', '#subpanel-content-{{ subpanel_name }}', '#subpanel-status-{{ subpanel_name }}');
+                                    })
+                                </script>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+</section>

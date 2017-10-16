@@ -1,0 +1,219 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        {{ title }}
+    </h1>
+    <ol class="breadcrumb">
+        <li>
+            <a href="{{ url('/' ~ controller ~ '/' ~ links.action_edit) }}" class="btn btn-info btn-xs">
+                <i class="fa fa-plus"></i> {{ t._('Create') }}
+            </a>
+        </li>
+        {% for m in links.getLinks('list') %}
+            <li>
+                <a href="{{ url(m.getUrl()) }}" class="btn {{ m.getBtnClass() }} btn-xs">
+                    {% if m.getIcon() %}<i class="{{ m.getIcon() }}"></i>{% endif %}
+                    {{ t._(m.getLabel()) }}
+                </a>
+            </li>
+        {% endfor %}
+    </ol>
+</section>
+
+<section class="content">
+    {{ form('/' ~ controller ~ '/' ~ action, 'method' : 'get', 'class': 'form-list-search') }}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="box box-default">
+                <input type="hidden" name="return_url" value="{{ current_url }}">
+                <input type="hidden" name="delete_all_message" value="{{ t._('Are you sure delete all records?') }}">
+                <div class="box-body">
+                    <div class="dataTables_wrapper form-inline dt-bootstrap">
+                        <!-- ACTIONS -->
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="input-group" style="margin-left: 1px; margin-bottom: 10px;">
+                                    <div class="input-group-btn">
+                                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            {{ t._('Action') }} <span class="caret"></span>
+                                        </button>
+                                        <ul class="dropdown-menu dropdown-menu-right">
+                                            {% for a in links.multi_actions %}
+                                                <li>
+                                                    <a href="{{ a.getUrl(null, ['c_controller': controller]) }}">
+                                                        {{ t._(a.getLabel()) }}
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div><!-- /btn-group -->
+                                </div><!-- /input-group -->
+                            </div><!-- /.col-lg-6 -->
+                        </div>
+
+                        <!-- DATA -->
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <table class="table table-bordered table-hover table-striped dataTable">
+                                    <thead>
+                                    <tr role="row">
+                                        <th class="header list-checkbox" width="1%">
+                                            <div class="form-group">
+                                                <label style="margin-bottom: 0">
+                                                    <input type="checkbox" name="choose_record_all" class="minimal">
+                                                </label>
+                                            </div>
+                                        </th>
+                                        {% for field in list_view.fields %}
+                                            {% if field.type != 'nodisplay' %}
+                                                {% set sort_type = '' %}
+                                                {% if sorts[field.name] is defined %}
+                                                    {% set sort_type = '_' ~ sorts[field.name] %}
+                                                {% endif %}
+                                                <th class="header sorting{{ sort_type }}" onclick="sortingNow('{{ current_url }}', '{{ field.name }}', '{{ sort_type }}', false)">{{ field.label }}</th>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <th class="header" width="1%">{{ t._('Action') }}</th>
+                                    </tr>
+                                    <!-- search -->
+                                    <tr>
+                                        <td></td>
+                                        {% for name, field in list_view.fields %}
+                                            {% if field.type != 'nodisplay' %}
+                                                <td>
+                                                    {% if field.search %}
+                                                        {% if search[name] is defined %}{% set search_value = search[name] %}{% else %}{% set search_value = '' %}{% endif %}
+                                                        <?php if (file_exists(APP_PATH . '/app/themes/default/view_default/fields/' . $field->type . '/search.twig')) { ?>
+                                                            {{ partial('view_default/fields/' ~ field.type ~ '/search') }}
+                                                        <?php } else { ?>
+                                                            {{ partial('view_default/fields/base/search') }}
+                                                        <?php } ?>
+                                                    {% endif %}
+                                                </td>
+                                            {% endif %}
+                                        {% endfor %}
+                                        <td>
+                                            <div class="form-group">
+                                                <input type="submit" name="submit" class="btn btn-info" value="{{ t._('Search') }}">
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    {% for row in data %}
+                                        <tr>
+                                            <td>
+                                                <div class="form-group">
+                                                    <label>
+                                                        <input type="checkbox" name="choose_records[]" value="{{ row.id }}" class="minimal check-choose-record">
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            {% for name, field in list_view.fields %}
+                                                {% if field.type != 'nodisplay' %}
+                                                    <td>
+                                                        <?php if (file_exists(APP_PATH . '/app/themes/default/view_default/fields/' . $field->type . '/list.twig')) { ?>
+                                                            {{ partial('view_default/fields/' ~ field.type ~ '/list') }}
+                                                        <?php } else { ?>
+                                                            {{ partial('view_default/fields/base/list') }}
+                                                        <?php } ?>
+                                                        {{ partial('view_default/fields/config/list') }}
+                                                    </td>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <td class="td-actions" valign="middle">
+                                                {% if links.list_actions is null %}
+                                                    <a href="{{ url('/' ~ controller ~ '/' ~ links.action_edit ~ '/' ~  row.id) }}?return_url={{ current_url|url_encode }}" class="btn btn-warning btn-xs" title="{{ t._('Edit') }}">
+                                                        <i class="fa fa-edit"></i>
+                                                    </a>
+                                                    <a href="{{ url('/' ~ controller ~ '/' ~ links.action_delete ~ '/' ~  row.id ~ '/' ~ model_name) }}?return_url={{ current_url|url_encode }}" class="btn btn-danger btn-xs" alert="{{ t._('You will delete this item.') }}" title="{{ t._('Delete') }}">
+                                                        <i class="fa fa-remove"></i>
+                                                    </a>
+                                                {% else %}
+                                                    {% for a in links.list_actions %}
+                                                        <a href="{{ url(a.getUrl(row)) }}" class="btn btn-warning btn-xs" {{ a.getAlert() }} title="{{ a.label }}">
+                                                            <i class="{{ a.getIcon() }}"></i>
+                                                        </a>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- pagination -->
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="dataTables_paginate paging_simple_numbers">
+                                    <ul class="pagination">
+                                        <li class="paginate_button previous"><a href="{{ current_url }}">{{ t._('First') }}</a></li>
+                                        <li class="paginate_button previous"><a href="{{ current_url }}&page={{ page.before }}">{{ t._('Previous') }}</a></li>
+                                        <li class="paginate_button">
+                                            <a href="javascript:;" class="paginate-select">
+                                                <select style="margin: 0; width: auto; height: 22px;" onchange="location.href='{{ current_url }}&page=' + $(this).val();">
+                                                    {% for i in 1..page.total_pages %}
+                                                        <option{% if page.current == i %} selected{% endif %}>{{ i }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </a>
+                                        </li>
+                                        <li class="paginate_button next"><a href="{{ current_url }}&page={{ page.next }}">{{ t._('Next') }}</a></li>
+                                        <li class="paginate_button next"><a href="{{ current_url }}&page={{ page.last }}">{{ t._('Last') }}</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if form_partials is defined and form_partials %}
+        {% for template in form_partials %}
+            <div class="row">
+                {% if template['data'] is defined %}
+                    {{ partial(template['partial'], template['data']) }}
+                {% else %}
+                    {{ partial(template['partial']) }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+    {{ end_form() }}
+
+    {% if partials is defined and partials %}
+        {% for template in partials %}
+            <div class="row">
+                {% if template['data'] is defined %}
+                    {{ partial(template['partial'], template['data']) }}
+                {% else %}
+                    {{ partial(template['partial']) }}
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% endif %}
+</section>
+
+<script type="text/javascript">
+    $('a[alert]').click(function (e) {
+        var url = $(this).attr('href');
+        var alert = $(this).attr('alert');
+        e.preventDefault();
+        swal({
+                title: "{{ t._('Are you sure?') }}",
+                text: alert,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                closeOnConfirm: false
+            },
+            function() {
+                location.href = url;
+            });
+    });
+</script>

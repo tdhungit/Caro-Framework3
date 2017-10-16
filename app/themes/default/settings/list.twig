@@ -1,0 +1,50 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        {{ t._('Settings') }}
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="{{ url('/') }}"><i class="fa fa-dashboard"></i> {{ t._('Home') }}</a></li>
+        <li class="active">{{ t._('Settings') }}</li>
+    </ol>
+</section>
+
+<section class="content">
+    <div class="row">
+        <div class="col-lg-12 col-md-12 col-xs-12">
+            <div class="box box-default">
+                <form action="{{ url('/settings/save') }}" method="post" enctype="multipart/form-data" class="form-horizontal">
+                    <div class="box-body">
+                        {% for block_name, config in settings_config %}
+                            <fieldset>
+                                <legend>{{ t._(block_name) | upper }}</legend>
+                                {% for field_name, options in config %}
+                                    {% set field = '[' ~ block_name ~ '][' ~ field_name ~ ']' %}
+                                    {% set field_id = block_name ~ '_' ~ field_name %}
+                                    <div class="form-group">
+                                        <label class="col-sm-2 control-label">{{ t._(options['label']) }}</label>
+
+                                        <div class="col-sm-10">
+                                            {% set value = '' %}
+                                            {% if preference[block_name][field_name] is defined %}
+                                                {% set value = preference[block_name][field_name] %}
+                                            {% endif %}
+                                            {{ partial('settings/partials/fields_config') }}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </fieldset>
+                        {% endfor %}
+                    </div>
+                    <div class="box-footer">
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button type="submit" class="btn btn-danger">{{ t._('Submit') }}</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

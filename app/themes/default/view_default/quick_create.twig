@@ -1,0 +1,43 @@
+{{ form('/' ~ controller ~ '/save', 'method' : 'post', 'class': 'form-horizontal', 'onsubmit': 'ajax_submit($(this), "' ~ submit_callback ~ '"); return false;') }}
+<input type="hidden" name="model_name" value="{{ model_name }}">
+<div class="modal-header">
+    <h4 class="modal-title">{{ t._('Quick Create ' ~ model_name) }}</h4>
+</div>
+
+<div class="modal-body">
+    {% for block_name, block_fields in fields %}
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="box box-default" id="quick-create-block-{{ remove_space(block_name) }}">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">{{ t._(block_name) }}</h3>
+                    </div>
+                    <div class="box-body">
+                        {% for name, field in block_fields %}
+                            {% if field.type != 'nodisplay' %}
+                                <div class="form-group form-group-{{ field.name }}">
+                                    <label class="col-sm-2 control-label label-{{ field.name }}">
+                                        {{ field.label }} {% if field.required == 99 %}<span class="required">*</span>{% endif %}
+                                    </label>
+                                    <div class="col-sm-10 value-{{ field.name }}">
+                                        <?php if (file_exists(APP_PATH . '/app/themes/default/view_default/fields/' . $field->type . '/edit.twig')) { ?>
+                                        {{ partial('view_default/fields/' ~ field.type ~ '/edit') }}
+                                        <?php } else { ?>
+                                        {{ partial('view_default/fields/base/edit') }}
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="modal-footer">
+    <button type="submit" class="btn btn-info">{{ t._('Create') }}</button>
+    <button type="button" class="btn btn-default" data-dismiss="modal">{{ t._('Close') }}</button>
+</div>
+{{ end_form() }}

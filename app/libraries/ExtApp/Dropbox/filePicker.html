@@ -1,0 +1,31 @@
+<script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" id="dropboxjs" data-app-key=":APP_KEY:"></script>
+<script type="text/javascript">
+    function dropbox_picker() {
+        options = {
+            success: function(files) {
+                var value = '';
+                for (var index in files) {
+                    value += files[index].link + ',';
+                    $('#comment-attachments-:ELEMENT_PREFIX:').append('<div>' + files[index].link +
+                        '<a href="javascript:void(0)" class="uploaded-files" path="' + files[index].link + '">x</a></div>');
+                }
+                value = trim(value, ',');
+                $('#input-attachment-:ELEMENT_PREFIX:').val(value);
+                // remove file upload
+                $('.uploaded-files').click(function () {
+                    value = value.replace($(this).attr('path'), '');
+                    value = trim(value, ',');
+                    $('#input-attachment-:ELEMENT_PREFIX:').val(value);
+                    $(this).parent().remove();
+                });
+            },
+            cancel: function() {
+
+            },
+            linkType: "preview", // or "direct"
+            multiselect: true, // or true
+            extensions: ['.txt','.pdf','.doc','.docx','.xls','.xlsx','ppt','pptx']
+        };
+        Dropbox.choose(options);
+    }
+</script>

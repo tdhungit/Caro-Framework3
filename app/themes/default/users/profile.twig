@@ -1,0 +1,221 @@
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        {{ t._('User Profile') }}
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="{{ url('/') }}"><i class="fa fa-dashboard"></i> {{ t._('Home') }}</a></li>
+        <li class="active">{{ t._('User profile') }}</li>
+    </ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-md-3">
+            <!-- Profile Image -->
+            <div class="box box-primary">
+                <div class="box-body box-profile">
+                    <img class="profile-user-img img-responsive img-circle"
+                         src="{% if user.avatar %}{{ user.avatar }}{% else %}{{ static_url() }}/themes/default/img/avatar6.png{% endif %}"
+                         alt="{{ user.name }}">
+
+                    <h3 class="profile-username text-center">{{ user.name }}</h3>
+
+                    {% if group is null %}
+                        <p class="text-muted text-center">{{ t._('Administrator') }}</p>
+                    {% else %}
+                        <p class="text-muted text-center">{{ group.name }}</p>
+                    {% endif %}
+
+                    <ul class="list-group list-group-unbordered">
+                        <li class="list-group-item">
+                            <b>{{ t._('Staff Title') }}</b> <a class="pull-right">{{ user.title }}</a>
+                        </li>
+                        <li class="list-group-item">
+                            <b>{{ t._('Department') }}</b> <a class="pull-right">{{ user.department }}</a>
+                        </li>
+                        <li class="list-group-item">
+                            <b>{{ t._('Phone') }}</b> <a class="pull-right">{{ user.phone }}</a>
+                        </li>
+                        <li class="list-group-item">
+                            <b>{{ t._('Ext') }}</b> <a class="pull-right">{{ user.extension }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+
+            <!-- About Me Box -->
+            <div class="box box-primary">
+                <div class="box-header with-border">
+                    <h3 class="box-title">{{ t._('About Me') }}</h3>
+                </div>
+                <!-- /.box-header -->
+                <div class="box-body">
+                    {% for social in user.social %}
+                        <strong><i class="fa fa-book margin-r-5"></i> {{ social['name'] }}</strong>
+                        <p class="text-muted">
+                            {{ social['link'] }}
+                        </p>
+                    {% endfor %}
+
+                    <hr>
+
+                    <strong><i class="fa fa-map-marker margin-r-5"></i> {{ t._('Location') }}</strong>
+                    <p class="text-muted">{{ user.location }}</p>
+
+                    <hr>
+
+                    <strong><i class="fa fa-file-text-o margin-r-5"></i> {{ t._('Description') }}</strong>
+                    <p>{{ user.description }}</p>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+        <!-- /.col -->
+        <div class="col-md-9">
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="{% if tab_active == 'timeline' %}active{% endif %}"><a href="#timeline" data-toggle="tab">{{ t._('Timeline') }}</a></li>
+                    <li class="{% if tab_active == 'profile' %}active{% endif %}"><a href="#profile" data-toggle="tab">{{ t._('Profile') }}</a></li>
+                    <li class="{% if tab_active == 'settings' %}active{% endif %}"><a href="#settings" data-toggle="tab">{{ t._('Settings') }}</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="{% if tab_active == 'timeline' %}active {% endif %}tab-pane" id="timeline">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <ul class="timeline">
+                                    {% set date_tmp = '' %}
+                                    {% for audit in audits.items %}
+                                        {% set date = current_user.toDisplayDate(audit.created) %}
+                                        {% if date != date_tmp %}
+                                            {% set date_tmp = date %}
+                                            <li class="time-label">
+                                                <span class="bg-red">{{ date }}</span>
+                                            </li>
+                                        {% endif %}
+                                        <li>
+                                            <i class="fa fa-check fa-{{ audit.model_name }} bg-blue"></i>
+                                            <div class="timeline-item">
+                                                <span class="time"><i class="fa fa-user"></i> {{ t._('at') }} {{ current_user.toDisplayDate(audit.created, 'datetime') }}</span>
+                                                <h3 class="timeline-header no-border">
+                                                    {{ t._(audit.type) }} {{ t._('a new') }} <strong>{{ t._(audit.model_name) }}</strong>&nbsp;
+                                                    {% set record = utils.getRelateRecord(audit.model_name, audit.record_id) %}
+                                                    <a href="{{ record['detail_link'] }}">{{ record['name'] }}</a>
+                                                </h3>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
+                                    <!-- END timeline item -->
+                                    <li>
+                                        <i class="fa fa-clock-o bg-gray"></i>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- pagination -->
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="dataTables_paginate paging_simple_numbers">
+                                    <ul class="pagination">
+                                        <li class="paginate_button previous"><a href="{{ current_url }}">{{ t._('First') }}</a></li>
+                                        <li class="paginate_button previous"><a href="{{ current_url }}&page={{ audits.before }}">{{ t._('Previous') }}</a></li>
+                                        <li class="paginate_button">
+                                            <a href="javascript:;" class="paginate-select">
+                                                <select style="margin: 0; width: auto; height: 22px;" onchange="location.href='{{ current_url }}&page=' + $(this).val();">
+                                                    {% for i in 1..audits.total_pages %}
+                                                        <option{% if audits.current == i %} selected{% endif %}>{{ i }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </a>
+                                        </li>
+                                        <li class="paginate_button next"><a href="{{ current_url }}&page={{ audits.next }}">{{ t._('Next') }}</a></li>
+                                        <li class="paginate_button next"><a href="{{ current_url }}&page={{ audits.last }}">{{ t._('Last') }}</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.tab-pane -->
+                    <div class="{% if tab_active == 'profile' %}active {% endif %}tab-pane" id="profile">
+                        <div class="row">
+                            {{ form('/users/profile', 'method': 'post', 'class': 'form-horizontal') }}
+                            {% for block_name, block_fields in model.edit_view.fields %}
+                                <div class="col-md-12">
+                                    <div class="box box-default">
+                                        <div class="box-header with-border">
+                                            <h3 class="box-title">{{ t._(block_name) }}</h3>
+                                        </div>
+                                        <div class="box-body">
+                                            <input type="hidden" name="save_type" value="profile">
+                                            {% for name, field in block_fields %}
+                                                {% if field.type != 'nodisplay' and not in_array(field.name, hidden_fields) %}
+                                                    <div class="form-group">
+                                                        <label class="col-sm-2 control-label">{{ field.label }} {% if field.required %}<span class="required">*</span>{% endif %}</label>
+                                                        <div class="col-sm-10">
+                                                            <?php if (file_exists(APP_PATH . '/app/themes/default/view_default/fields/' . $field->type . '/edit.twig')) { ?>
+                                                            {{ partial('view_default/fields/' ~ field.type ~ '/edit', ['data': user, 'name': name, 'field': field]) }}
+                                                            <?php } else { ?>
+                                                            {{ partial('view_default/fields/base/edit', ['data': user, 'name': name, 'field': field]) }}
+                                                            <?php } ?>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                            <div class="box-footer">
+                                                <button id="submit-button" type="submit" class="btn btn-info pull-right" name="submit" style="margin-right: 5px;">{{ t._('Save') }}</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            {{ end_form() }}
+                        </div>
+                    </div>
+                    <!-- /.tab-pane -->
+                    <div class="{% if tab_active == 'settings' %}active {% endif %}tab-pane" id="settings">
+                        <form action="{{ url('/users/profile') }}" method="post" class="form-horizontal">
+                            {% for block_name, config in preference_config %}
+                                <fieldset>
+                                    <legend>{{ t._(block_name) | upper }}</legend>
+                                    {% for field_name, options in config %}
+                                        {% set field = '[' ~ field_name ~ ']' %}
+                                        {% set field_id = field_name %}
+                                        <div class="form-group">
+                                            <label for="inputName" class="col-sm-2 control-label">{{ t._(options['label']) }}</label>
+
+                                            <div class="col-sm-10">
+                                                {% set value = '' %}
+                                                {% if preference[field_name] is defined %}
+                                                    {% set value = preference[field_name] %}
+                                                {% endif %}
+                                                {{ partial('settings/partials/fields_config') }}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </fieldset>
+                            {% endfor %}
+
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-danger">{{ t._('Submit') }}</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- /.tab-pane -->
+                </div>
+                <!-- /.tab-content -->
+            </div>
+            <!-- /.nav-tabs-custom -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+
+</section>
+<!-- /.content -->
